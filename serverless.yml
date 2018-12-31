@@ -1,0 +1,32 @@
+service: crystal-hello-world
+
+provider:
+  name: aws
+  runtime: provided
+
+package:
+  artifact: ./bootstrap.zip
+
+functions:
+  httpevent:
+    handler: httpevent
+    events:
+      - http:
+          memorySize: 128
+          path: hello
+          method: get
+
+  snsevent:
+    handler: snsevent
+    memorySize: 128
+    events:
+      - sns: my-sns-topic
+
+  scheduledevent:
+    handler: scheduledevent
+    memorySize: 128
+    events:
+      - schedule:
+          rate: rate(10 minutes)
+          input:
+            hello: world
