@@ -1,14 +1,47 @@
-# crystal-lambda
+# crystal-aws-lambda
 
-A small example of running lambdas written in [crystallang](https://crystal-lang.org/)
+A small example of running lambdas written in [crystallang](https://crystal-lang.org/). Not production ready, just an evening hack!
 
 ## Installation
 
 Clone this repo, runs the `shards` command to install dependencies, run `crystal spec` to ensure passing tests and you should be ready for deployment.
 
-The `lambda.cr` provides some glue code to run own events. The `request.cr` file contains some helper classes to create a request class, that enhances a regular crystallang HTTP request and some response helper class.
+The `lambda.cr` file provides some glue code to run own events. The `request.cr` file contains some helper classes to create a request class, that enhances a regular crystallang HTTP request and some response helper class.
 
 The interesting class to tinker around with would be the `bootstrap.cr` file, which contains the definitions of the three sample lambdas.
+
+```crystal
+require "./lambda"
+
+lambda = Lambda.new()
+
+lambda.register_handler("httpevent",
+  ->(input: JSON::Any) {
+    req = LambdaHttpRequest.new(input)
+    user = req.query_params.fetch("hello", "World")
+    response = LambdaHttpResponse.new(200, "Hello #{user} from Crystal")
+    return JSON.parse response.to_json
+  }
+)
+
+lambda.register_handler("scheduledevent",
+  ->(input: JSON::Any) {
+    lambda.logger.debug("Hello from scheduled event, input: #{input}")
+    return JSON.parse "{}"
+  }
+)
+
+lambda.register_handler("snsevent",
+  ->(input: JSON::Any) {
+    lambda.logger.info("SNSEvent input: #{input}")
+    return JSON.parse "{}"
+  }
+)
+
+lambda.run()
+```
+
+This is also the file to create the binary from. As you can see, the HTTP based polling of new lambda invocations is hidden away from the handlers, as this is an implementation detail.
 
 ## Deployment
 
