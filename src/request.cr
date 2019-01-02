@@ -2,13 +2,12 @@ require "http"
 require "json"
 
 class LambdaHttpRequest < HTTP::Request
-
   getter request_context : Hash(String, JSON::Any)
   getter handler : String
 
   def initialize(body : JSON::Any)
     headers = HTTP::Headers.new
-    body["headers"].as_h.each { |k, v| { headers.add(k, v.as_s) }}
+    body["headers"].as_h.each { |k, v| {headers.add(k, v.as_s)} }
     request_body = nil
     if (body["body"]? && body["body"].as_s?)
       request_body = body["body"].as_s
@@ -26,7 +25,6 @@ class LambdaHttpRequest < HTTP::Request
 end
 
 class LambdaHttpResponse
-
   property body : String | JSON::Any | Nil
   getter headers : HTTP::Headers
   getter status_code

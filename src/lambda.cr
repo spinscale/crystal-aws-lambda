@@ -3,14 +3,13 @@ require "logger"
 require "./request"
 
 class Lambda
-
   getter host : String
   getter port : Int16
   getter handlers : Hash(String, Proc(JSON::Any, JSON::Any))
   getter logger : Logger
 
   def initialize(@logger : Logger = Logger.new(STDOUT, level: Logger::DEBUG))
-    @handlers = Hash(String, Proc(JSON::Any, JSON::Any)).new()
+    @handlers = Hash(String, Proc(JSON::Any, JSON::Any)).new
     api = ENV["AWS_LAMBDA_RUNTIME_API"].split(":", 2)
     @host = api[0]
     @port = api[1].to_i16

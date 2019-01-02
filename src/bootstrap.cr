@@ -1,9 +1,9 @@
 require "./lambda"
 
-lambda = Lambda.new()
+lambda = Lambda.new
 
 lambda.register_handler("httpevent",
-  ->(input: JSON::Any) {
+  ->(input : JSON::Any) {
     req = LambdaHttpRequest.new(input)
     user = req.query_params.fetch("hello", "World")
     response = LambdaHttpResponse.new(200, "Hello #{user} from Crystal")
@@ -13,17 +13,17 @@ lambda.register_handler("httpevent",
 )
 
 lambda.register_handler("scheduledevent",
-  ->(input: JSON::Any) {
+  ->(input : JSON::Any) {
     lambda.logger.debug("Hello from scheduled event, input: #{input}")
     return JSON.parse "{}"
   }
 )
 
 lambda.register_handler("snsevent",
-  ->(input: JSON::Any) {
+  ->(input : JSON::Any) {
     lambda.logger.info("SNSEvent input: #{input}")
     return JSON.parse "{}"
   }
 )
 
-lambda.run()
+lambda.run

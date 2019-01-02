@@ -5,13 +5,12 @@ require "http"
 require "json"
 
 def mock_next_invocation(body : String)
-  WebMock.stub(:get, "http://localhost/2018-06-01/runtime/invocation/next").
-    to_return(status: 200, body: body, headers: {"Lambda-Runtime-Aws-Request-Id" => "54321", "Lambda-Runtime-Trace-Id" => "TRACE-ID", "Content-Type": "application/json"})
+  WebMock.stub(:get, "http://localhost/2018-06-01/runtime/invocation/next")
+    .to_return(status: 200, body: body, headers: {"Lambda-Runtime-Aws-Request-Id" => "54321", "Lambda-Runtime-Trace-Id" => "TRACE-ID", "Content-Type": "application/json"})
 end
 
 describe Lambda do
-
-  io = IO::Memory.new()
+  io = IO::Memory.new
   logger = Logger.new(io, level: Logger::INFO)
 
   Spec.before_each do
@@ -30,7 +29,7 @@ describe Lambda do
 
   it "should be able to register a handler as proc" do
     lambda = Lambda.new(logger)
-    handler = ->(_input: JSON::Any) {
+    handler = ->(_input : JSON::Any) {
       JSON.parse LambdaHttpResponse.new(200).to_json
     }
     lambda.register_handler("test", handler)
@@ -39,7 +38,7 @@ describe Lambda do
 
   it "should be able to register a scheduled event" do
     lambda = Lambda.new(logger)
-    lambda.register_handler("test", -> (_input: JSON::Any) {
+    lambda.register_handler("test", ->(_input : JSON::Any) {
       return JSON.parse(%q({ "foo" : "bar"}))
     })
     lambda.handlers["test"].should_not be_nil
@@ -59,7 +58,6 @@ describe Lambda do
     lambda.process_request(Proc(JSON::Any, JSON::Any).new { |_input|
       return JSON.parse(%q({ "foo" : "bar" }))
     })
-
   end
 
   it "can return text responses including header" do
@@ -78,7 +76,7 @@ describe Lambda do
 
     lambda = Lambda.new(logger)
     lambda.process_request(
-      ->(_input: JSON::Any) {
+      ->(_input : JSON::Any) {
         response = LambdaHttpResponse.new(200, "text body")
         response.headers["Content-Type"] = "application/text"
         JSON.parse response.to_json
@@ -100,7 +98,7 @@ describe Lambda do
 
     lambda = Lambda.new(logger)
     lambda.process_request(
-      ->(_input: JSON::Any) {
+      ->(_input : JSON::Any) {
         raise "anything"
         JSON.parse "{}"
       }
@@ -118,12 +116,11 @@ describe Lambda do
 
     lambda = Lambda.new(logger)
     lambda.process_request(
-      ->(_input: JSON::Any) {
+      ->(_input : JSON::Any) {
         JSON.parse "{}"
       }
     )
 
     ENV["_X_AMZN_TRACE_ID"].should eq "TRACE-ID"
   end
-
 end
