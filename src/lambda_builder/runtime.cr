@@ -3,7 +3,6 @@ require "logger"
 require "./util"
 
 module LambdaBuilder
-
   class Runtime
     getter host : String
     getter port : Int16
