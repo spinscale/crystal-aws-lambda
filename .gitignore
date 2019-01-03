@@ -5,3 +5,7 @@
 *.dwarf
 .serverless
 bootstrap.zip
+example/shard.lock
+example/lib/
+example/bin/
+example/.serverless/

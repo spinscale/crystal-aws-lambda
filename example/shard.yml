@@ -1,0 +1,14 @@
+name: crystal-lambda-sample
+version: 0.1.0
+
+authors:
+  - Alexander Reelsen <alexander@reelsen.net>
+
+dependencies:
+  lambda_builder:
+    github: spinscale/crystal-aws-lambda
+    branch: master
+
+crystal: 0.27.0
+
+license: MIT

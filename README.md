@@ -1,51 +1,91 @@
 # crystal-aws-lambda
 
-A small example of running lambdas written in [crystallang](https://crystal-lang.org/). Not production ready, just an evening hack!
+A small library to simplify running lambdas written in [crystallang](https://crystal-lang.org/). Not production ready, just an evening hack!
 
 ## Installation
 
-Clone this repo, runs the `shards` command to install dependencies, run `crystal spec` to ensure passing tests and you should be ready for deployment.
+You can include this as a dependency in your project in `shards.yml` file
 
-The `lambda.cr` file provides some glue code to run own events. The `request.cr` file contains some helper classes to create a request class, that enhances a regular crystallang HTTP request and some response helper class.
+```
+dependencies:
+  lambda_builder:
+    github: spinscale/crystal-aws-lambda
+    branch: master
+```
 
-The interesting class to tinker around with would be the `bootstrap.cr` file, which contains the definitions of the three sample lambdas.
+Now run the the `shards` command to download the dependency. You can now create your own lambda handlers like this
+
 
 ```crystal
-require "./lambda"
+require "lambda_builder"
 
-lambda = Lambda.new()
+runtime = LambdaBuilder::Runtime.new
 
-lambda.register_handler("httpevent",
-  ->(input: JSON::Any) {
-    req = LambdaHttpRequest.new(input)
+runtime.register_handler("httpevent",
+  ->(input : JSON::Any) {
+    req = LambdaBuilder::Util::LambdaHttpRequest.new(input)
     user = req.query_params.fetch("hello", "World")
-    response = LambdaHttpResponse.new(200, "Hello #{user} from Crystal")
+    response = LambdaBuilder::Util::LambdaHttpResponse.new(200, "Hello #{user} from Crystal")
+    # not super efficient, serializing to JSON string and then parsing, simplify this
     return JSON.parse response.to_json
   }
 )
 
-lambda.register_handler("scheduledevent",
-  ->(input: JSON::Any) {
-    lambda.logger.debug("Hello from scheduled event, input: #{input}")
+runtime.register_handler("scheduledevent",
+  ->(input : JSON::Any) {
+    runtime.logger.debug("Hello from scheduled event, input: #{input}")
     return JSON.parse "{}"
   }
 )
 
-lambda.register_handler("snsevent",
-  ->(input: JSON::Any) {
-    lambda.logger.info("SNSEvent input: #{input}")
+runtime.register_handler("snsevent",
+  ->(input : JSON::Any) {
+    runtime.logger.info("SNSEvent input: #{input}")
     return JSON.parse "{}"
   }
 )
 
-lambda.run()
+runtime.run
 ```
-
-This is also the file to create the binary from. As you can see, the HTTP based polling of new lambda invocations is hidden away from the handlers, as this is an implementation detail.
 
 ## Deployment
 
-Make sure the [serverless framework](https://serverless.com/) is set up properly.
+Make sure the [serverless framework](https://serverless.com/) is set up properly. The next step is to create a proper serverless configuration file like this
+
+```yml
+service: crystal-hello-world
+
+provider:
+  name: aws
+  runtime: provided
+
+package:
+  artifact: ./bootstrap.zip
+
+functions:
+  httpevent:
+    handler: httpevent
+    events:
+      - http:
+          memorySize: 128
+          path: hello
+          method: get
+
+  snsevent:
+    handler: snsevent
+    memorySize: 128
+    events:
+      - sns: my-sns-topic
+
+  scheduledevent:
+    handler: scheduledevent
+    memorySize: 128
+    events:
+      - schedule:
+          rate: rate(10 minutes)
+          input:
+            hello: world
+```
 
 If you are using osx, make sure you are building your app using docker, as an AWS lambda runtime environment is based on Linux. You can create a linux binary using docker like this
 
@@ -59,10 +99,6 @@ Now package the zip file required for deployment and deploy
 zip -j bootstrap.zip bin/bootstrap
 sls deploy
 ```
-
-Now you will have one HTTP endpoint deployed, one scheduled event running every 10 minutes and one lambda listening on an SQS queue - which can be triggered by sending a message to it. You can also run `sls info` to get the exact HTTP endpoint.
-
-The configuration of the above can be found in the `serverless.yml` file.
 
 In order to monitor executions you can check the corresponding function logs like this
 
@@ -79,6 +115,24 @@ sls metrics -f httpevent
 sls metrics -f snsevent
 sls metrics -f scheduledevent
 ```
+
+## Example
+
+If you want to get up and running with an example, run the following commands
+
+```
+git clone https://github.com/spinscale/crystal-aws-lambda
+cd crystal-aws-lambda/example
+# download dependencies
+shards
+# built binary (using docker under osx) and creates the zip file
+make
+# deploy to AWS, requires the serverless tool to be properly set up
+sls deploy
+```
+
+This will start a sample runtime, that includes a HTTP endpoint, a scheduled event and an SQS listening event.
+
 
 ## Contributing
 
