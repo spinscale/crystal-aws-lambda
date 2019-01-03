@@ -1,15 +1,15 @@
 require "spec"
-require "../src/lambda"
 require "webmock"
 require "http"
 require "json"
+require "../../src/lambda_builder"
 
 def mock_next_invocation(body : String)
   WebMock.stub(:get, "http://localhost/2018-06-01/runtime/invocation/next")
     .to_return(status: 200, body: body, headers: {"Lambda-Runtime-Aws-Request-Id" => "54321", "Lambda-Runtime-Trace-Id" => "TRACE-ID", "Content-Type": "application/json"})
 end
 
-describe Lambda do
+describe LambdaBuilder::Runtime do
   io = IO::Memory.new
   logger = Logger.new(io, level: Logger::INFO)
 
@@ -22,26 +22,26 @@ describe Lambda do
 
   it "can read the runtime API from the environment" do
     ENV["AWS_LAMBDA_RUNTIME_API"] = "my-host:12345"
-    lambda = Lambda.new(logger)
-    lambda.host.should eq "my-host"
-    lambda.port.should eq 12345
+    runtime = LambdaBuilder::Runtime.new(logger)
+    runtime.host.should eq "my-host"
+    runtime.port.should eq 12345
   end
 
   it "should be able to register a handler as proc" do
-    lambda = Lambda.new(logger)
+    runtime = LambdaBuilder::Runtime.new(logger)
     handler = ->(_input : JSON::Any) {
-      JSON.parse LambdaHttpResponse.new(200).to_json
+      JSON.parse LambdaBuilder::Util::LambdaHttpResponse.new(200).to_json
     }
-    lambda.register_handler("test", handler)
-    lambda.handlers["test"].should eq handler
+    runtime.register_handler("test", handler)
+    runtime.handlers["test"].should eq handler
   end
 
   it "should be able to register a scheduled event" do
-    lambda = Lambda.new(logger)
-    lambda.register_handler("test", ->(_input : JSON::Any) {
+    runtime = LambdaBuilder::Runtime.new(logger)
+    runtime.register_handler("test", ->(_input : JSON::Any) {
       return JSON.parse(%q({ "foo" : "bar"}))
     })
-    lambda.handlers["test"].should_not be_nil
+    runtime.handlers["test"].should_not be_nil
   end
 
   it "can run with a scheduled event" do
@@ -54,8 +54,8 @@ describe Lambda do
       HTTP::Client::Response.new(202)
     end
 
-    lambda = Lambda.new(logger)
-    lambda.process_request(Proc(JSON::Any, JSON::Any).new { |_input|
+    runtime = LambdaBuilder::Runtime.new(logger)
+    runtime.process_request(Proc(JSON::Any, JSON::Any).new { |_input|
       return JSON.parse(%q({ "foo" : "bar" }))
     })
   end
@@ -74,10 +74,10 @@ describe Lambda do
       HTTP::Client::Response.new(202)
     end
 
-    lambda = Lambda.new(logger)
-    lambda.process_request(
+    runtime = LambdaBuilder::Runtime.new(logger)
+    runtime.process_request(
       ->(_input : JSON::Any) {
-        response = LambdaHttpResponse.new(200, "text body")
+        response = LambdaBuilder::Util::LambdaHttpResponse.new(200, "text body")
         response.headers["Content-Type"] = "application/text"
         JSON.parse response.to_json
       }
@@ -96,8 +96,8 @@ describe Lambda do
       HTTP::Client::Response.new(202)
     end
 
-    lambda = Lambda.new(logger)
-    lambda.process_request(
+    runtime = LambdaBuilder::Runtime.new(logger)
+    runtime.process_request(
       ->(_input : JSON::Any) {
         raise "anything"
         JSON.parse "{}"
@@ -114,8 +114,8 @@ describe Lambda do
       HTTP::Client::Response.new(202)
     end
 
-    lambda = Lambda.new(logger)
-    lambda.process_request(
+    runtime = LambdaBuilder::Runtime.new(logger)
+    runtime.process_request(
       ->(_input : JSON::Any) {
         JSON.parse "{}"
       }
