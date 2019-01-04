@@ -16,7 +16,7 @@ describe LambdaBuilder::Runtime do
   Spec.before_each do
     WebMock.reset
     ENV["AWS_LAMBDA_RUNTIME_API"] = "localhost:80"
-    ENV["_HANDLER"] = "handler"
+    ENV["_HANDLER"] = "my_handler"
     io.clear
   end
 
@@ -27,24 +27,16 @@ describe LambdaBuilder::Runtime do
     runtime.port.should eq 12345
   end
 
-  it "should be able to register a handler as proc" do
+  it "should be able to register a handler" do
     runtime = LambdaBuilder::Runtime.new(logger)
-    handler = ->(_input : JSON::Any) {
-      JSON.parse LambdaBuilder::Util::LambdaHttpResponse.new(200).to_json
-    }
-    runtime.register_handler("test", handler)
-    runtime.handlers["test"].should eq handler
+    #handler = do |_input| JSON.parse LambdaBuilder::Util::LambdaHttpResponse.new(200).to_json end
+    runtime.register_handler("my_handler") do |_input|
+      JSON.parse(%q({ "foo" : "bar"}))
+    end
+    runtime.handlers["my_handler"].should_not be_nil
   end
 
-  it "should be able to register a scheduled event" do
-    runtime = LambdaBuilder::Runtime.new(logger)
-    runtime.register_handler("test", ->(_input : JSON::Any) {
-      return JSON.parse(%q({ "foo" : "bar"}))
-    })
-    runtime.handlers["test"].should_not be_nil
-  end
-
-  it "can run with a scheduled event" do
+  it "can run with an event" do
     body = %Q({ "input" : { "test" : "test" }})
     mock_next_invocation body
 
@@ -55,9 +47,10 @@ describe LambdaBuilder::Runtime do
     end
 
     runtime = LambdaBuilder::Runtime.new(logger)
-    runtime.process_request(Proc(JSON::Any, JSON::Any).new { |_input|
-      return JSON.parse(%q({ "foo" : "bar" }))
-    })
+    runtime.register_handler("my_handler") do
+      JSON.parse(%q({ "foo" : "bar" }))
+    end
+    runtime.process_handler
   end
 
   it "can return text responses including header" do
@@ -75,13 +68,12 @@ describe LambdaBuilder::Runtime do
     end
 
     runtime = LambdaBuilder::Runtime.new(logger)
-    runtime.process_request(
-      ->(_input : JSON::Any) {
-        response = LambdaBuilder::Util::LambdaHttpResponse.new(200, "text body")
-        response.headers["Content-Type"] = "application/text"
-        JSON.parse response.to_json
-      }
-    )
+    runtime.register_handler("my_handler") do
+      response = LambdaBuilder::Util::LambdaHttpResponse.new(200, "text body")
+      response.headers["Content-Type"] = "application/text"
+      JSON.parse response.to_json
+    end
+    runtime.process_handler
   end
 
   it "can handle exceptions" do
@@ -97,12 +89,10 @@ describe LambdaBuilder::Runtime do
     end
 
     runtime = LambdaBuilder::Runtime.new(logger)
-    runtime.process_request(
-      ->(_input : JSON::Any) {
-        raise "anything"
-        JSON.parse "{}"
-      }
-    )
+    runtime.register_handler("my_handler") do
+      raise "anything"
+    end
+    runtime.process_handler
   end
 
   it "sets the environment x-ray trace id" do
@@ -115,11 +105,10 @@ describe LambdaBuilder::Runtime do
     end
 
     runtime = LambdaBuilder::Runtime.new(logger)
-    runtime.process_request(
-      ->(_input : JSON::Any) {
-        JSON.parse "{}"
-      }
-    )
+    runtime.register_handler("my_handler") do
+      JSON.parse "{}"
+    end
+    runtime.process_handler
 
     ENV["_X_AMZN_TRACE_ID"].should eq "TRACE-ID"
   end
