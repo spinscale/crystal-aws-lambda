@@ -6,11 +6,11 @@ module LambdaBuilder
   class Runtime
     getter host : String
     getter port : Int16
-    getter handlers : Hash(String, Proc(JSON::Any, JSON::Any))
+    getter handlers : Hash(String, (JSON::Any -> JSON::Any))
     getter logger : Logger
 
     def initialize(@logger : Logger = Logger.new(STDOUT, level: Logger::DEBUG))
-      @handlers = Hash(String, Proc(JSON::Any, JSON::Any)).new
+      @handlers = Hash(String, (JSON::Any -> JSON::Any)).new
       api = ENV["AWS_LAMBDA_RUNTIME_API"].split(":", 2)
       @host = api[0]
       @port = api[1].to_i16
@@ -23,23 +23,27 @@ module LambdaBuilder
       end
     end
 
-    def register_handler(name : String, handler : Proc(JSON::Any, JSON::Any))
+    def register_handler(name : String, &handler : JSON::Any -> JSON::Any)
       @handlers[name] = handler
     end
 
     def run
       # ameba:disable Style/WhileTrue
       while true
-        handler_name = ENV["_HANDLER"]
-        if @handlers.has_key?(handler_name)
-          process_request @handlers[handler_name]
-        else
-          @logger.error("unknown handler: #{handler_name}, available handlers: #{handlers.keys.join(", ")}")
-        end
+        process_handler
       end
     end
 
-    def process_request(proc : Proc(JSON::Any, JSON::Any))
+    def process_handler
+      handler_name = ENV["_HANDLER"]
+      if @handlers.has_key?(handler_name)
+        _process_request @handlers[handler_name]
+      else
+        @logger.error("unknown handler: #{handler_name}, available handlers: #{handlers.keys.join(", ")}")
+      end
+    end
+
+    def _process_request(proc : Proc(JSON::Any, JSON::Any))
       client = HTTP::Client.new(host: @host, port: @port)
 
       begin
