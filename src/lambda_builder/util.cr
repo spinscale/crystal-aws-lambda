@@ -16,7 +16,10 @@ module LambdaBuilder::Util
 
       path = body["path"].as_s
       if (body["queryStringParameters"]? && body["queryStringParameters"].as_h?)
-        qs = body["queryStringParameters"].as_h.transform_values { |v| v.to_s }
+        qs = Hash(String, String).new
+        body["queryStringParameters"].as_h.each do |key, value|
+          qs[key] = value.to_s
+        end
         path += "?" + HTTP::Params.encode qs
       end
       super(body["httpMethod"].as_s, path, headers, request_body)
