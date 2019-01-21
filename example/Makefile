@@ -8,6 +8,7 @@ else
 endif
 
 build: docker
+	[ -d bin ] || mkdir bin
 ifeq ($(uname_S), Darwin)
 	docker run --rm -it -v $(CURDIR):/app -w /app crystal-static-compile:latest crystal build src/bootstrap.cr -o bin/bootstrap --release --static --no-debug
 else
@@ -19,8 +20,7 @@ docker:
 	docker build . -t crystal-static-compile
 
 clean:
-	rm -f ./bin/bootstrap*
+	rm -f ./bin/bootstrap* bootstrap.zip
 
 test: build
 	$(CRYSTAL_BIN) spec
-
