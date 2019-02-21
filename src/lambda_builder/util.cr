@@ -6,7 +6,7 @@ module LambdaBuilder::Util
     getter request_context : Hash(String, JSON::Any)
     getter handler : String
 
-    def initialize(body : JSON::Any)
+    def initialize(body : JSON::Any, @handler = ENV["_HANDLER"])
       headers = HTTP::Headers.new
       body["headers"].as_h.each { |k, v| {headers.add(k, v.as_s)} }
       request_body = nil
@@ -24,7 +24,28 @@ module LambdaBuilder::Util
       end
       super(body["httpMethod"].as_s, path, headers, request_body)
       @request_context = body["requestContext"].as_h
-      @handler = ENV["_HANDLER"]
+      @original_body = body
+    end
+
+    def to_json(json : JSON::Builder)
+      json.object do
+        json.field "request", @original_body
+        json.field "handler", @handler
+      end
+    end
+
+   def self.from_json(value : String) : LambdaHttpRequest
+     return LambdaHttpRequest.from_json JSON::PullParser.new(value)
+   end
+
+   def self.from_json(value : JSON::PullParser) : LambdaHttpRequest
+      value.read_begin_object
+      value.read_object_key
+      body = JSON::Any.new value
+      value.read_object_key
+      handler = value.read_string
+      value.read_end_object
+      LambdaHttpRequest.new body, handler
     end
   end
 
