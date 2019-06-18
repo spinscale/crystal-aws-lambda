@@ -11,6 +11,21 @@ module Lambda::Builder
       @headers = HTTP::Headers.new
     end
 
+    # Returns a `JSON::Any` object for passing on to AWS
+    def as_json : JSON::Any
+      json = Hash(String, JSON::Any).new
+
+      json["statusCode"] = JSON::Any.new status_code
+
+      if !body.nil?
+        json["body"] = JSON::Any.new body
+      end
+
+      json["headers"] = headers.to_h
+
+      JSON::Any.new(json)
+    end
+
     def to_json(json : JSON::Builder)
       json.object do
         json.field "statusCode", @status_code

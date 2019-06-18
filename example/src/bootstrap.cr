@@ -6,8 +6,7 @@ runtime.register_handler("httpevent") do |input|
   req = Lambda::Builder::HTTPRequest.new(input)
   user = req.query_params.fetch("hello", "World")
   response = Lambda::Builder::HTTPResponse.new(200, "Hello #{user} from Crystal")
-  # not super efficient, serializing to JSON string and then parsing, simplify this
-  JSON.parse response.to_json
+  response.as_json
 end
 
 runtime.register_handler("scheduledevent") do |input|
