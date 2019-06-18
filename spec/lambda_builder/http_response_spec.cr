@@ -25,4 +25,12 @@ describe Lambda::Builder::HTTPResponse do
     json = JSON.parse response.to_json
     json["headers"]["Content-Type"]?.should eq "application/text"
   end
+
+  it "can return a JSON::Any object" do
+    response = Lambda::Builder::HTTPResponse.new(200, "body")
+    response.headers["Content-Type"] = "application/text"
+    json = response.as_json
+    json.should be_a(JSON::Any)
+    json.as_h["headers"]["Content-Type"]?.should eq "application/text"
+  end
 end
