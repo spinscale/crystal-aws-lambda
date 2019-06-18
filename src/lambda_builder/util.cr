@@ -1,7 +1,7 @@
 require "http"
 require "json"
 
-module LambdaBuilder::Util
+module Lambda::Builder::Util
   class LambdaHttpRequest < HTTP::Request
     getter request_context : Hash(String, JSON::Any)
     getter handler : String
@@ -34,11 +34,11 @@ module LambdaBuilder::Util
       end
     end
 
-   def self.from_json(value : String) : LambdaHttpRequest
-     return LambdaHttpRequest.from_json JSON::PullParser.new(value)
-   end
+    def self.from_json(value : String) : LambdaHttpRequest
+      LambdaHttpRequest.from_json JSON::PullParser.new(value)
+    end
 
-   def self.from_json(value : JSON::PullParser) : LambdaHttpRequest
+    def self.from_json(value : JSON::PullParser) : LambdaHttpRequest
       value.read_begin_object
       value.read_object_key
       body = JSON::Any.new value
@@ -66,7 +66,7 @@ module LambdaBuilder::Util
         end
         json.field "headers" do
           json.start_object
-          @headers.each do |key, value|
+          headers.each do |key, value|
             json.field key, value.first
           end
           json.end_object

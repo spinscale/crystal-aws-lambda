@@ -9,7 +9,7 @@ def mock_next_invocation(body : String)
     .to_return(status: 200, body: body, headers: {"Lambda-Runtime-Aws-Request-Id" => "54321", "Lambda-Runtime-Trace-Id" => "TRACE-ID", "Content-Type": "application/json"})
 end
 
-describe LambdaBuilder::Runtime do
+describe Lambda::Builder::Runtime do
   io = IO::Memory.new
   logger = Logger.new(io, level: Logger::INFO)
 
@@ -22,14 +22,14 @@ describe LambdaBuilder::Runtime do
 
   it "can read the runtime API from the environment" do
     ENV["AWS_LAMBDA_RUNTIME_API"] = "my-host:12345"
-    runtime = LambdaBuilder::Runtime.new(logger)
+    runtime = Lambda::Builder::Runtime.new(logger)
     runtime.host.should eq "my-host"
     runtime.port.should eq 12345
   end
 
   it "should be able to register a handler" do
-    runtime = LambdaBuilder::Runtime.new(logger)
-    #handler = do |_input| JSON.parse LambdaBuilder::Util::LambdaHttpResponse.new(200).to_json end
+    runtime = Lambda::Builder::Runtime.new(logger)
+    # handler = do |_input| JSON.parse Lambda::Builder::Util::LambdaHttpResponse.new(200).to_json end
     runtime.register_handler("my_handler") do |_input|
       JSON.parse(%q({ "foo" : "bar"}))
     end
@@ -46,7 +46,7 @@ describe LambdaBuilder::Runtime do
       HTTP::Client::Response.new(202)
     end
 
-    runtime = LambdaBuilder::Runtime.new(logger)
+    runtime = Lambda::Builder::Runtime.new(logger)
     runtime.register_handler("my_handler") do
       JSON.parse(%q({ "foo" : "bar" }))
     end
@@ -67,9 +67,9 @@ describe LambdaBuilder::Runtime do
       HTTP::Client::Response.new(202)
     end
 
-    runtime = LambdaBuilder::Runtime.new(logger)
+    runtime = Lambda::Builder::Runtime.new(logger)
     runtime.register_handler("my_handler") do
-      response = LambdaBuilder::Util::LambdaHttpResponse.new(200, "text body")
+      response = Lambda::Builder::Util::LambdaHttpResponse.new(200, "text body")
       response.headers["Content-Type"] = "application/text"
       JSON.parse response.to_json
     end
@@ -88,7 +88,7 @@ describe LambdaBuilder::Runtime do
       HTTP::Client::Response.new(202)
     end
 
-    runtime = LambdaBuilder::Runtime.new(logger)
+    runtime = Lambda::Builder::Runtime.new(logger)
     runtime.register_handler("my_handler") do
       raise "anything"
     end
@@ -104,7 +104,7 @@ describe LambdaBuilder::Runtime do
       HTTP::Client::Response.new(202)
     end
 
-    runtime = LambdaBuilder::Runtime.new(logger)
+    runtime = Lambda::Builder::Runtime.new(logger)
     runtime.register_handler("my_handler") do
       JSON.parse "{}"
     end
