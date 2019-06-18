@@ -1,6 +1,7 @@
 require "http"
 require "logger"
-require "./util"
+require "./http_request"
+require "./http_response"
 
 module Lambda::Builder
   class Runtime

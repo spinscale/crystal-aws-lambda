@@ -3,9 +3,9 @@ require "lambda_builder"
 runtime = Lambda::Builder::Runtime.new
 
 runtime.register_handler("httpevent") do |input|
-  req = Lambda::Builder::Util::LambdaHttpRequest.new(input)
+  req = Lambda::Builder::HTTPRequest.new(input)
   user = req.query_params.fetch("hello", "World")
-  response = Lambda::Builder::Util::LambdaHttpResponse.new(200, "Hello #{user} from Crystal")
+  response = Lambda::Builder::HTTPResponse.new(200, "Hello #{user} from Crystal")
   # not super efficient, serializing to JSON string and then parsing, simplify this
   JSON.parse response.to_json
 end

@@ -1,8 +1,5 @@
 require "spec"
-require "webmock"
-require "http"
-require "json"
-require "../../src/lambda_builder"
+require "../spec_helper"
 
 def mock_next_invocation(body : String)
   WebMock.stub(:get, "http://localhost/2018-06-01/runtime/invocation/next")
@@ -29,7 +26,7 @@ describe Lambda::Builder::Runtime do
 
   it "should be able to register a handler" do
     runtime = Lambda::Builder::Runtime.new(logger)
-    # handler = do |_input| JSON.parse Lambda::Builder::Util::LambdaHttpResponse.new(200).to_json end
+    # handler = do |_input| JSON.parse Lambda::Builder::HTTPResponse.new(200).to_json end
     runtime.register_handler("my_handler") do |_input|
       JSON.parse(%q({ "foo" : "bar"}))
     end
@@ -69,7 +66,7 @@ describe Lambda::Builder::Runtime do
 
     runtime = Lambda::Builder::Runtime.new(logger)
     runtime.register_handler("my_handler") do
-      response = Lambda::Builder::Util::LambdaHttpResponse.new(200, "text body")
+      response = Lambda::Builder::HTTPResponse.new(200, "text body")
       response.headers["Content-Type"] = "application/text"
       JSON.parse response.to_json
     end
