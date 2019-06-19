@@ -1,4 +1,4 @@
 require "./lambda_builder/*"
 
-module LambdaBuilder
+module Lambda::Builder
 end
