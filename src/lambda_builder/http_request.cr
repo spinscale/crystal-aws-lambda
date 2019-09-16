@@ -24,7 +24,7 @@ module Lambda::Builder
         path += "?" + HTTP::Params.encode qs
       end
 
-      super(body["httpMethod"].as_s, path, headers, request_body)
+      super(body["httpMethod"].as_s, path, headers, request_body, internal: nil)
 
       @request_context = body["requestContext"].as_h
       @original_body = body
