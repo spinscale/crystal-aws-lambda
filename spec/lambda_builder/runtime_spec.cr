@@ -8,7 +8,6 @@ end
 
 describe Lambda::Builder::Runtime do
   io = IO::Memory.new
-  logger = Logger.new(io, level: Logger::INFO)
 
   Spec.before_each do
     WebMock.reset
@@ -19,13 +18,13 @@ describe Lambda::Builder::Runtime do
 
   it "can read the runtime API from the environment" do
     ENV["AWS_LAMBDA_RUNTIME_API"] = "my-host:12345"
-    runtime = Lambda::Builder::Runtime.new(logger)
+    runtime = Lambda::Builder::Runtime.new
     runtime.host.should eq "my-host"
     runtime.port.should eq 12345
   end
 
   it "should be able to register a handler" do
-    runtime = Lambda::Builder::Runtime.new(logger)
+    runtime = Lambda::Builder::Runtime.new
     # handler = do |_input| JSON.parse Lambda::Builder::HTTPResponse.new(200).to_json end
     runtime.register_handler("my_handler") do |_input|
       JSON.parse(%q({ "foo" : "bar"}))
@@ -43,7 +42,7 @@ describe Lambda::Builder::Runtime do
       HTTP::Client::Response.new(202)
     end
 
-    runtime = Lambda::Builder::Runtime.new(logger)
+    runtime = Lambda::Builder::Runtime.new
     runtime.register_handler("my_handler") do
       JSON.parse(%q({ "foo" : "bar" }))
     end
@@ -64,7 +63,7 @@ describe Lambda::Builder::Runtime do
       HTTP::Client::Response.new(202)
     end
 
-    runtime = Lambda::Builder::Runtime.new(logger)
+    runtime = Lambda::Builder::Runtime.new
     runtime.register_handler("my_handler") do
       response = Lambda::Builder::HTTPResponse.new(200, "text body")
       response.headers["Content-Type"] = "application/text"
@@ -85,7 +84,7 @@ describe Lambda::Builder::Runtime do
       HTTP::Client::Response.new(202)
     end
 
-    runtime = Lambda::Builder::Runtime.new(logger)
+    runtime = Lambda::Builder::Runtime.new
     runtime.register_handler("my_handler") do
       raise "anything"
     end
@@ -101,7 +100,7 @@ describe Lambda::Builder::Runtime do
       HTTP::Client::Response.new(202)
     end
 
-    runtime = Lambda::Builder::Runtime.new(logger)
+    runtime = Lambda::Builder::Runtime.new
     runtime.register_handler("my_handler") do
       JSON.parse "{}"
     end

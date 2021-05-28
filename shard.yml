@@ -7,11 +7,11 @@ authors:
 development_dependencies:
   webmock:
     github: manastech/webmock.cr
-    branch: 0.12.1
+    version: 0.14.0
   ameba:
     github: veelenga/ameba
-    version: 0.10.1
+    version: 0.14.3
 
-crystal: 0.30.1
+crystal: 1.0.0
 
 license: MIT
