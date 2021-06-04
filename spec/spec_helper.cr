@@ -116,3 +116,58 @@ def request_body
   }
 END
 end
+
+def request_body_v2
+  <<-END
+    {
+    "version": "2.0",
+    "routeKey": "OPTIONS /{proxy+}",
+    "rawPath": "/hi",
+    "rawQueryString": "",
+    "headers": {
+      "accept": "*/*",
+      "accept-encoding": "gzip, deflate, br",
+      "accept-language": "en-US,en;q=0.9",
+      "access-control-request-headers": "authorization,content-type",
+      "access-control-request-method": "POST",
+      "content-length": "0",
+      "content-type": "application/x-www-form-urlencoded",
+      "forwarded": "by=0.0.0.0;for=0.0.0.0;host=local.dev;proto=https",
+      "host": "local.dev",
+      "origin": "https://local.dev",
+      "referer": "https://local.dev/",
+      "sec-fetch-dest": "empty",
+      "sec-fetch-mode": "cors",
+      "sec-fetch-site": "same-site",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/0.0.0.0 Safari/537.36",
+      "via": "HTTP/1.1 AmazonAPIGateway",
+      "x-amzn-trace-id": "Self=1-60ad1af6-6041ce5335bd44ad26b42c70;Root=1-60ad2af6-7bbc041f64b16ac44ad97952",
+      "x-forwarded-for": "0.0.0.0",
+      "x-forwarded-port": "443",
+      "x-forwarded-proto": "https"
+    },
+    "pathParameters": {
+      "proxy": "score"
+    },
+    "requestContext": {
+      "routeKey": "OPTIONS /{proxy+}",
+      "accountId": "5555555555",
+      "stage": "$default",
+      "requestId": "f5Emhi3LIAMEM7A=",
+      "apiId": "xxxxx",
+      "domainName": "local.dev",
+      "domainPrefix": "local",
+      "time": "25/May/2021:15:42:46 +0000",
+      "timeEpoch": 1621957366418,
+      "http": {
+        "method": "OPTIONS",
+        "path": "/hi",
+        "protocol": "HTTP/1.1",
+        "sourceIp": "0.0.0.0",
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/0.0.0.0 Safari/537.36"
+      }
+    },
+    "isBase64Encoded": false
+  }
+END
+end

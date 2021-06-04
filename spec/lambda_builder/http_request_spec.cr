@@ -16,6 +16,14 @@ describe Lambda::Builder::HTTPRequest do
     req.query_params["test"].should eq "bar"
   end
 
+  it "parses api gateway v2 (HTTP gateway)" do
+    ENV["_HANDLER"] = "foo"
+    input = JSON.parse(request_body_v2)
+    req = Lambda::Builder::HTTPRequest.new(input)
+    req.method.should eq "OPTIONS"
+    req.path.should eq "/hi"
+  end
+
   it "works with empty body and query string" do
     body = %q({ "path" : "/test", "httpMethod" : "GET", "headers" : { "key": "value" }, "requestContext" : {} })
     response = HTTP::Client::Response.new(200, body, HTTP::Headers.new)
