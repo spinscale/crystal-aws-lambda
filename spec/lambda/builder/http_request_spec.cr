@@ -1,4 +1,4 @@
-require "../spec_helper"
+require "../../spec_helper"
 
 describe Lambda::Builder::HTTPRequest do
   it "parses properly" do

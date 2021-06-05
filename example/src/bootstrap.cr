@@ -1,6 +1,6 @@
-require "lambda_builder"
+require "lambda"
 
-runtime = Lambda::Builder::Runtime.new
+runtime = Lambda::Runtime.new
 
 Log.define_formatter(
   LambdaFormatter,
