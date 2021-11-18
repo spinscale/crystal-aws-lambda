@@ -8,18 +8,17 @@ You can include this as a dependency in your project in `shards.yml` file
 
 ```
 dependencies:
-  lambda_builder:
+  lambda:
     github: spinscale/crystal-aws-lambda
     branch: main
 ```
 
 Now run the the `shards` command to download the dependency. You can now create your own lambda handlers like this
 
-
 ```crystal
-require "lambda_builder"
+require "lambda"
 
-runtime = Lambda::Builder::Runtime.new
+runtime = Lambda::Runtime.new
 
 runtime.register_handler("httpevent") do |input|
   req = Lambda::Builder::HTTPRequest.new(input)
@@ -130,7 +129,6 @@ sls deploy
 ```
 
 This will start a sample runtime, that includes a HTTP endpoint, a scheduled event and an SQS listening event.
-
 
 ## Contributing
 

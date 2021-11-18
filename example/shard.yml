@@ -5,7 +5,7 @@ authors:
   - Alexander Reelsen <alexander@reelsen.net>
 
 dependencies:
-  lambda_builder:
+  lambda:
     github: spinscale/crystal-aws-lambda
     branch: main
 
