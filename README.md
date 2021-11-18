@@ -10,7 +10,7 @@ You can include this as a dependency in your project in `shards.yml` file
 dependencies:
   lambda_builder:
     github: spinscale/crystal-aws-lambda
-    branch: master
+    branch: main
 ```
 
 Now run the the `shards` command to download the dependency. You can now create your own lambda handlers like this
