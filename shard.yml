@@ -1,17 +1,18 @@
 name: lambda_builder
-version: 0.1.1
+version: 0.1.2
 
 authors:
   - Alexander Reelsen <alexander@reelsen.net>
+  - Josephine Pfeiffer <hi@josie.lol>
 
 development_dependencies:
   webmock:
     github: manastech/webmock.cr
     version: 0.14.0
   ameba:
-    github: veelenga/ameba
-    version: 0.14.3
+    github: crystal-ameba/ameba
+    version: 1.3.1
 
-crystal: 1.0.0
+crystal: 1.6.2
 
 license: MIT

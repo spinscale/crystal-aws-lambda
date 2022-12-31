@@ -9,6 +9,6 @@ dependencies:
     github: spinscale/crystal-aws-lambda
     branch: main
 
-crystal: 0.25.0
+crystal: 1.6.2
 
 license: MIT
