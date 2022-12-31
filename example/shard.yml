@@ -6,8 +6,8 @@ authors:
 
 dependencies:
   lambda_builder:
-    github: spinscale/crystal-aws-lambda
-    branch: main
+    github: pfeifferj/crystal-aws-lambda
+    branch: upgrade-crystal-and-dependencies
 
 crystal: 1.6.2
 
