@@ -9,7 +9,7 @@ endif
 
 build:
 	[ -d bin ] || mkdir bin
-	docker run --rm -it -v $(CURDIR):/app -w /app 84codes/crystal:1.6.2-alpine /bin/sh -c "crystal build src/bootstrap.cr -o bin/bootstrap --release --static --no-debug ; strip bin/bootstrap"
+	docker run --rm -it -v $(CURDIR):/app -w /app crystallang/crystal:1.6.2-alpine /bin/sh -c "crystal build src/bootstrap.cr -o bin/bootstrap --release --static --no-debug ; strip bin/bootstrap"
 	zip -j bootstrap.zip bin/bootstrap
 
 dependencies:
