@@ -3,11 +3,12 @@ version: 0.1.0
 
 authors:
   - Alexander Reelsen <alexander@reelsen.net>
-
+  - Josephine Pfeiffer <hi@josie.lol>
+  
 dependencies:
   lambda_builder:
-    github: pfeifferj/crystal-aws-lambda
-    branch: upgrade-crystal-and-dependencies
+    github: spinscale/crystal-aws-lambda
+    branch: main
 
 crystal: 1.6.2
 
