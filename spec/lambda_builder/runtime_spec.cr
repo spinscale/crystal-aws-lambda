@@ -3,7 +3,7 @@ require "../spec_helper"
 
 def mock_next_invocation(body : String)
   WebMock.stub(:get, "http://localhost/2018-06-01/runtime/invocation/next")
-    .to_return(status: 200, body: body, headers: {"Lambda-Runtime-Aws-Request-Id" => "54321", "Lambda-Runtime-Trace-Id" => "TRACE-ID", "Content-Type": "application/json"})
+    .to_return(status: 200, body: body, headers: {"Lambda-Runtime-Aws-Request-Id" => "54321", "Lambda-Runtime-Trace-Id" => "TRACE-ID", "Content-Type" => "application/json"})
 end
 
 describe Lambda::Builder::Runtime do

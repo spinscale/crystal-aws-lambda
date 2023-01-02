@@ -3,12 +3,13 @@ version: 0.1.0
 
 authors:
   - Alexander Reelsen <alexander@reelsen.net>
-
+  - Josephine Pfeiffer <hi@josie.lol>
+  
 dependencies:
   lambda_builder:
     github: spinscale/crystal-aws-lambda
     branch: main
 
-crystal: 0.25.0
+crystal: 1.6.2
 
 license: MIT

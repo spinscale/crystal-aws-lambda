@@ -10,9 +10,9 @@ package:
 functions:
   httpevent:
     handler: httpevent
+    memorySize: 128
     events:
       - http:
-          memorySize: 128
           path: hello
           method: get
 

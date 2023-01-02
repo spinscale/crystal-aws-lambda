@@ -9,6 +9,7 @@ example/shard.lock
 example/lib/
 example/bin/
 example/.serverless/
+.vscode
 
 # Libraries don't need dependency lock
 # Dependencies will be locked in applications that use them
