@@ -114,6 +114,29 @@ sls metrics -f snsevent
 sls metrics -f scheduledevent
 ```
 
+## Compiling with shared libraries
+
+While often it's easy to compile with just static linking on a host system like Alpine, sometimes it's more convenient to deploy a dynamically linked binary. To do this, all the required linked dependencies have to be copied into the zip file. The binary itself needs to be modified using [patchelf](https://github.com/NixOS/patchelf) to find them too.
+
+The required libraries can be obtained automatically using `ldd bin/bootstrap`. An example build and packaging process looks like this:
+```
+shards build --release bootstrap
+mkdir -p build/lib
+
+# copy the main binary
+cp bin/bootstrap build
+
+# copy the libraries
+cp $(ldd bin/bootstrap | awk '/ => / {print $3}') build/lib
+# copy the loader
+cp /lib64/ld-linux-x86-64.so.2 build/lib
+# update the library lookup paths to use ./lib rather than the system copies
+patchelf --set-interpreter ./lib/ld-linux-x86-64.so.2 --set-rpath ./lib --force-rpath build/bootstrap
+
+# zip it all up for deployment
+(cd build && zip -r ../bootstrap.zip *)
+```
+
 ## Example
 
 If you want to get up and running with an example, run the following commands
