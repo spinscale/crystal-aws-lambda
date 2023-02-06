@@ -27,7 +27,7 @@ describe Lambda::Builder::Runtime do
     runtime = Lambda::Builder::Runtime.new
     # handler = do |_input| JSON.parse Lambda::Builder::HTTPResponse.new(200).to_json end
     runtime.register_handler("my_handler") do |_input|
-      JSON.parse(%q({ "foo" : "bar"}))
+      %q({ "foo" : "bar"})
     end
     runtime.handlers["my_handler"].should_not be_nil
   end
@@ -44,7 +44,7 @@ describe Lambda::Builder::Runtime do
 
     runtime = Lambda::Builder::Runtime.new
     runtime.register_handler("my_handler") do
-      JSON.parse(%q({ "foo" : "bar" }))
+      %q({ "foo" : "bar" })
     end
     runtime.process_handler
   end
@@ -67,7 +67,7 @@ describe Lambda::Builder::Runtime do
     runtime.register_handler("my_handler") do
       response = Lambda::Builder::HTTPResponse.new(200, "text body")
       response.headers["Content-Type"] = "application/text"
-      JSON.parse response.to_json
+      response.to_json
     end
     runtime.process_handler
   end
@@ -102,7 +102,7 @@ describe Lambda::Builder::Runtime do
 
     runtime = Lambda::Builder::Runtime.new
     runtime.register_handler("my_handler") do
-      JSON.parse "{}"
+      "{}"
     end
     runtime.process_handler
 
